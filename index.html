@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Hotel Abandonado: 260 Puertas de Halloween</title>
+    <style>
+        :root {
+            --bg-hotel: #0c0704;
+            --madera-oscura: #1f0d05;
+            --madera-marco: #3b1e0d;
+            --madera-tabla: #522b12;
+            --acento-fuego: #ff6600;
+            --texto-dorado: #f3e5ab;
+            --metal-oxidado: #2e3033;
+            --luz-foco: rgba(255, 180, 50, 0.25);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-hotel);
+            color: var(--texto-dorado);
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        /* EFECTO DE LUZ Y FOCO PARPADEANTE */
+        .foco-techo {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;
+            height: 24px;
+            background: #444;
+            border-radius: 0 0 8px 8px;
+            z-index: 10;
+        }
+        .foco-techo::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 3px;
+            width: 10px;
+            height: 10px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #ffb432;
+            animation: parpadeoFoco 3.5s infinite alternate;
+        }
+
+        .luz-ambiente {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(circle at 50% 20%, var(--luz-foco) 0%, rgba(0,0,0,0.92) 80%);
+            pointer-events: none;
+            z-index: 5;
+            animation: ambienteTitilante 4s infinite alternate;
+        }
+
+        @keyframes parpadeoFoco {
+            0%, 100% { opacity: 1; filter: drop-shadow(0 0 10px #ffb432); }
+            40% { opacity: 0.8; }
+            42% { opacity: 0.2; }
+            43% { opacity: 0.9; }
+            80% { opacity: 1; }
+            82% { opacity: 0.1; }
+            84% { opacity: 0.8; }
+        }
+
+        @keyframes ambienteTitilante {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+            82% { opacity: 0.4; }
+            84% { opacity: 0.9; }
+        }
+
+        /* CONTENEDOR PRINCIPAL */
+        .escenario-hotel {
+            position: relative;
+            width: 95%;
+            max-width: 680px;
+            height: 520px;
+            background: linear-gradient(to bottom, #170a04 0%, #0a0402 100%);
+            border: 8px solid var(--madera-marco);
+            border-radius: 12px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.9), inset 0 0 50px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            box-sizing: border-box;
+            z-index: 2;
+            background-image: repeating-linear-gradient(90deg, transparent, transparent 50px, rgba(0,0,0,0.3) 50px, rgba(0,0,0,0.3) 54px);
+        }
+
+        /* INTERFAZ SUPERIOR: ESTADÍSTICAS E INVENTARIO */
+        .panel-superior {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(20, 10, 5, 0.85);
+            border: 2px solid var(--madera-marco);
+            border-radius: 8px;
+            padding: 8px 12px;
+            box-sizing: border-box;
+            z-index: 6;
+        }
+
+        .vidas-contenedor {
+            display: flex;
+            gap: 4px;
+        }
+        .corazon-ui {
+            width: 18px;
+            height: 18px;
+            background-color: #e63946;
+            display: inline-block;
+            transform: rotate(-45deg);
+            margin: 0 4px;
+            position: relative;
+        }
+        .corazon-ui::before, .corazon-ui::after {
+            content: "";
+            width: 18px;
+            height: 18px;
+            background-color: #e63946;
+            border-radius: 50%;
+            position: absolute;
+        }
+        .corazon-ui::before { top: -9px; left: 0; }
+        .corazon-ui::after { left: 9px; top: 0; }
+        .corazon-ui.vacio { background-color: #442225; }
+        .corazon-ui.vacio::before, .corazon-ui.vacio::after { background-color: #442225; }
+
+        .indicador-dulces {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: bold;
+            color: var(--acento-fuego);
+        }
+        .icono-dulce {
+            width: 14px;
+            height: 14px;
+            background: #ff7518;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 5px #ff7518;
+        }
+
+        /* INVENTARIO DE 3 CASILLAS */
+        .inventario-ui {
+            display: flex;
+            gap: 8px;
+        }
+        .slot-inv {
+            width: 42px;
+            height: 42px;
+            background: #120904;
+            border: 2px solid var(--madera-marco);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+        }
+        .slot-inv:hover { border-color: var(--acento-fuego); }
+
+        /* MUEBLES INTERACTIVOS EN LA SALA */
+        .zona-muebles {
+            position: absolute;
+            bottom: 120px;
+            width: 90%;
+            display: flex;
+            justify-content: space-around;
+            z-index: 6;
+        }
+        .mueble-cajonera {
+            width: 75px;
+            height: 55px;
+            background: var(--madera-tabla);
+            border: 3px solid #200f06;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            padding: 3px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+        }
+        .cajon-linea {
+            height: 12px;
+            background: #2a1408;
+            border: 1px solid #140703;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cajon-linea::after {
+            content: '';
+            width: 8px;
+            height: 2px;
+            background: #d4a373;
+        }
+
+        /* ZONA DE PUERTAS EN LA SALA */
+        .contenedor-puertas {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 12px;
+            width: 100%;
+            height: 240px;
+            z-index: 6;
+            margin-bottom: 10px;
+        }
+
+        .puerta-marco {
+            width: 110px;
+            height: 210px;
+            background: #110804;
+            border: 4px solid var(--madera-marco);
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.15s, border-color 0.15s;
+            box-shadow: inset 0 0 20px #000;
+        }
+        .puerta-marco:hover {
+            transform: translateY(-4px);
+            border-color: var(--acento-fuego);
+        }
+
+        .numero-puerta {
+            position: absolute;
+            top: -16px;
+            background: #1a0a03;
+            border: 2px solid var(--acento-fuego);
+            color: var(--texto-dorado);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 11px;
+            box-shadow: 0 0 8px rgba(255, 117, 24, 0.5);
+        }
+
+        /* TIPOS DE PUERTAS CON CSS */
+        .hoja-puerta {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            border-radius: 4px 4px 0 0;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 1. Común */
+        .puerta-comun {
+            background: linear-gradient(to right, #3d2110, #542e17, #3d2110);
+            border: 2px solid #261308;
+        }
+        .puerta-comun::after {
+            content: '';
+            position: absolute;
+            right: 10px;
+            width: 8px;
+            height: 8px;
+            background: #d4a373;
+            border-radius: 50%;
+            box-shadow: 0 0 4px #000;
+        }
+
+        /* 2. Rota */
+        .puerta-rota {
+            background: #2b170c;
+            border: 2px solid #170b05;
+        }
+        .tablon-roto {
+            position: absolute;
+            width: 105%;
+            height: 18px;
+            background: #4a2713;
+            border: 1px solid #1c0e06;
+            transform: rotate(-12deg);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.7);
+        }
+        .tablon-roto-2 {
+            position: absolute;
+            width: 100%;
+            height: 16px;
+            background: #3b1d0d;
+            border: 1px solid #1c0e06;
+            transform: rotate(18deg);
+            top: 60px;
+        }
+
+        /* 3. Metal Embrujado con Telaraña */
+        .puerta-embrujada {
+            background: linear-gradient(to bottom, #2d3136, #1a1c1e);
+            border: 2px solid #484e54;
+        }
+        .telarana-css {
+            position: absolute;
+            top: 5px; right: 5px;
+            width: 35px; height: 35px;
+            border-right: 2px dashed rgba(255,255,255,0.4);
+            border-bottom: 2px dashed rgba(255,255,255,0.4);
+            border-radius: 0 0 100% 0;
+        }
+
+        /* 4. Metal con Electricidad */
+        .puerta-electrica {
+            background: linear-gradient(to bottom, #1f2937, #111827);
+            border: 2px solid #3b82f6;
+            box-shadow: inset 0 0 15px #3b82f6;
+            animation: relampagoMetal 2s infinite alternate;
+        }
+        @keyframes relampagoMetal {
+            0%, 100% { border-color: #3b82f6; box-shadow: inset 0 0 10px #3b82f6; }
+            50% { border-color: #60a5fa; box-shadow: inset 0 0 22px #60a5fa, 0 0 10px #3b82f6; }
+        }
+
+        /* PANEL DE PUZLE LABERINTO */
+        #modal-puzle {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.92);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .canvas-laberinto {
+            background: #111827;
+            border: 4px solid #3b82f6;
+            border-radius: 8px;
+            box-shadow: 0 0 20px #3b82f6;
+            touch-action: none;
+        }
+
+        /* TIENDA DE HALLOWEEN */
+        #modal-tienda {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(5, 2, 1, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 90;
+        }
+        .tienda-caja {
+            background: #1a0c05;
+            border: 4px solid var(--acento-fuego);
+            border-radius: 12px;
+            padding: 20px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 0 30px rgba(255,117,24,0.4);
+            text-align: center;
+        }
+        .item-tienda-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #291408;
+            border: 1px solid #42210e;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            font-size: 11px;
+        }
+        .btn-comprar {
+            background: var(--acento-fuego);
+            color: #000;
+            border: none;
+            padding: 6px 12px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* MENÚ PRINCIPAL Y RETIRO */
+        .pantalla-menu {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(circle, #240f05 0%, #050201 90%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .btn-principal {
+            background: linear-gradient(135deg, #ff7518, #d97706);
+            color: #fff;
+            border: none;
+            padding: 12px 28px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(255, 117, 24, 0.5);
+            font-family: inherit;
+        }
+        .btn-principal:disabled {
+            background: #444;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .burbuja-texto {
+            position: absolute;
+            bottom: 12px;
+            background: rgba(10, 5, 2, 0.9);
+            border: 2px solid var(--acento-fuego);
+            padding: 10px;
+            border-radius: 8px;
+            width: 90%;
+            text-align: center;
+            font-size: 11px;
+            z-index: 8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="foco-techo"></div>
+    <div class="luz-ambiente"></div>
+
+    <!-- PANTALLA MENÚ PRINCIPAL / RETIRO -->
+    <div id="pantalla-menu" class="pantalla-menu">
+        <h1 style="color: var(--acento-fuego); font-size: 22px; margin-bottom: 5px;">🎃 HOTEL ABANDONADO 🦇</h1>
+        <p style="font-size: 12px; color: #d4a373; max-width: 400px;">Sobrevive a las 260 salas embrujadas. Reúne dulces y retírate a tiempo antes de perder todos tus corazones.</p>
+
+        <div id="info-reintentos" style="font-size: 11px; color: #f3e5ab; margin: 10px 0;">Partidas disponibles: 2/2</div>
+        <div id="temporizador-espera" style="font-size: 12px; color: #ef4444; font-weight: bold;"></div>
+
+        <button class="btn-principal" id="btn-jugar" onclick="iniciarPartida()">ENTRAR AL HOTEL</button>
+        <button class="btn-principal" id="btn-retirar-menu" style="background: #10b981;" onclick="confirmarRetiroPremios()">RETIRAR PREMIOS ACUMULADOS</button>
+
+        <div style="margin-top: 20px; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 8px; max-width: 380px; max-height: 120px; overflow-y: auto; text-align: left; border: 1px solid #3b1e0d;">
+            <div style="font-size: 11px; color: var(--acento-fuego); font-weight: bold; text-align: center;">📜 Premios Acumulados:</div>
+            <ul id="lista-premios-ganados" style="font-size: 10px; margin: 5px 0; padding-left: 18px; color: #f3e5ab;">
+                <li>Ningún premio reclamado aún.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ESCENARIO DEL HOTEL (JUEGO ACTIVO) -->
+    <div class="escenario-hotel">
+        <!-- Panel Superior -->
+        <div class="panel-superior">
+            <div>
+                <div style="font-size: 9px; color: #a1a1aa;">SALUD</div>
+                <div class="vidas-contenedor" id="contenedor-vidas"></div>
+            </div>
+            <div class="indicador-dulces">
+                <span class="icono-dulce"></span>
+                <span id="lbl-dulces">0</span>
+            </div>
+            <div>
+                <div style="font-size: 9px; color: #a1a1aa; text-align: right;">INVENTARIO (3)</div>
+                <div class="inventario-ui" id="contenedor-inventario">
+                    <div class="slot-inv" onclick="usarItemInv(0)" id="inv-0">-</div>
+                    <div class="slot-inv" onclick="usarItemInv(1)" id="inv-1">-</div>
+                    <div class="slot-inv" onclick="usarItemInv(2)" id="inv-2">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="font-size: 11px; color: var(--acento-fuego); font-weight: bold;" id="lbl-sala-actual">SALA 1 / 260</div>
+
+        <!-- Muebles con cajones -->
+        <div class="zona-muebles" id="zona-muebles-sala"></div>
+
+        <!-- Puertas en la Sala -->
+        <div class="contenedor-puertas" id="contenedor-puertas-sala"></div>
+
+        <div class="burbuja-texto" id="lbl-historial">Elige una puerta para avanzar...</div>
+    </div>
+
+    <!-- PUZLE DE LABERINTO EN PUERTA EMBRUIJADA -->
+    <div id="modal-puzle">
+        <h3 style="color: #3b82f6; margin-bottom: 5px; font-size: 14px;">⚡ TRAZA EL CAMINO HACIA LA SALIDA</h3>
+        <p style="font-size: 10px; color: #a1a1aa; margin-top: 0;">Mantén presionado y desliza desde el inicio (Verde) hasta el final (Rojo).</p>
+        <canvas id="canvasLab" class="canvas-laberinto" width="280" height="280"></canvas>
+        <button class="btn-principal" style="background: #374151; margin-top: 10px;" onclick="cancelarPuzle()">Cancelar</button>
+    </div>
+
+    <!-- TIENDA CADA 10 SALAS -->
+    <div id="modal-tienda">
+        <div class="tienda-caja">
+            <h2 style="color: var(--acento-fuego); margin-top: 0; font-size: 16px;">🏬 TIENDA DEL HOTEL EMBRUJADO</h2>
+            <p style="font-size: 10px; color: #d4a373;">Dulces disponibles: <b id="lbl-dulces-tienda">0</b></p>
+            <div id="lista-items-tienda"></div>
+            <button class="btn-principal" style="margin-top: 10px; background: #10b981;" onclick="cerrarTienda()">CONTINUAR A LA SIGUIENTE SALA</button>
+        </div>
+    </div>
+
+    <script>
+        // --- BASE DE DATOS DE PREMIOS FINALES Y PROBABILIDADES ---
+        const TABLA_PREMIOS = [
+            { nombre: "Huevo retro", prob: 30 },
+            { nombre: "Huevo jubilado", prob: 20 },
+            { nombre: "Huevo básico", prob: 60 },
+            { nombre: "Huevo roto", prob: 50 },
+            { nombre: "Huevo mascota", prob: 30 },
+            { nombre: "Huevo extinto", prob: 35 },
+            { nombre: "Huevo hada", prob: 65 },
+            { nombre: "Caja 2D", prob: 10 },
+            { nombre: "Regalo pequeño", prob: 70 },
+            { nombre: "Regalo mediano", prob: 40 },
+            { nombre: "Regalo grande", prob: 9 },
+            { nombre: "Poción bonus bucks", prob: 15 },
+            { nombre: "Poción XP bonus", prob: 15 },
+            { nombre: "Pet periquito bruja", prob: 40 },
+            { nombre: "Jerbo gelatinoso", prob: 20 },
+            { nombre: "Conechoco", prob: 10 },
+            { nombre: "Chocodrilo", prob: 10 },
+            { nombre: "Iguana de gomita", prob: 20 },
+            { nombre: "Caja de patitos", prob: 10 },
+            { nombre: "Caja de bellotas", prob: 5 },
+            { nombre: "Caja de conechocos", prob: 5 },
+            { nombre: "Huevo de cristal", prob: 2 }
+        ];
+
+        // --- ESTADO DEL JUEGO Y SISTEMA DE SESIÓN ---
+        let estadoGlobal = {
+            partidasJugadas: 0,
+            tiempoEsperaHasta: 0,
+            premiosAcumulados: [],
+            contadorPuntosPremio: 0
+        };
+
+        let partidaActiva = {
+            salaActual: 1,
+            corazones: 3,
+            maxCorazones: 3,
+            dulces: 0,
+            inventario: [null, null, null], // Máximo 3 espacios
+            efectoRegeneracion: false,
+            efectoAguaBendita: false,
+            puertaSeleccionadaIndex: null
+        };
+
+        window.addEventListener('load', () => {
+            let save = localStorage.getItem('hotel_abandonado_save_v1');
+            if (save) estadoGlobal = JSON.parse(save);
+            actualizarUI_Menu();
+            setInterval(actualizarTemporizador, 1000);
+        });
+
+        function guardarEstadoGlobal() {
+            localStorage.setItem('hotel_abandonado_save_v1', JSON.stringify(estadoGlobal));
+        }
+
+        function actualizarTemporizador() {
+            let ahora = Date.now();
+            let elemTemp = document.getElementById('temporizador-espera');
+            let btnJugar = document.getElementById('btn-jugar');
+
+            if (estadoGlobal.tiempoEsperaHasta > ahora) {
+                let rest = Math.ceil((estadoGlobal.tiempoEsperaHasta - ahora) / 1000);
+                let min = Math.floor(rest / 60);
+                let seg = rest % 60;
+                elemTemp.innerText = `⏳ Espera de enfriamiento: ${min}:${seg < 10 ? '0' : ''}${seg}`;
+                btnJugar.disabled = true;
+            } else {
+                elemTemp.innerText = "";
+                if (estadoGlobal.partidasJugadas >= 2) {
+                    btnJugar.disabled = true;
+                    btnJugar.innerText = "LÍMITE DE PARTIDAS ALCANZADO";
+                } else {
+                    btnJugar.disabled = false;
+                    btnJugar.innerText = estadoGlobal.partidasJugadas === 1 ? "ENTRAR (SEGUNDA Y ÚLTIMA PARTIDA)" : "ENTRAR AL HOTEL";
+                }
+            }
+        }
+
+        function actualizarUI_Menu() {
+            document.getElementById('info-reintentos').innerText = `Partidas disponibles: ${2 - estadoGlobal.partidasJugadas}/2`;
+            let listaEl = document.getElementById('lista-premios-ganados');
+            if (estadoGlobal.premiosAcumulados.length === 0) {
+                listaEl.innerHTML = "<li>Ningún premio reclamado aún.</li>";
+            } else {
+                listaEl.innerHTML = "";
+                estadoGlobal.premiosAcumulados.forEach(p => {
+                    let li = document.createElement('li');
+                    li.innerText = p;
+                    listaEl.appendChild(li);
+                });
+            }
+            actualizarTemporizador();
+        }
+
+        function iniciarPartida() {
+            if (estadoGlobal.partidasJugadas >= 2) return;
+            if (Date.now() < estadoGlobal.tiempoEsperaHasta) return;
+
+            partidaActiva = {
+                salaActual: 1,
+                corazones: 3,
+                maxCorazones: 3,
+                dulces: 0,
+                inventario: [null, null, null],
+                efectoRegeneracion: false,
+                efectoAguaBendita: false,
+                puertaSeleccionadaIndex: null
+            };
+
+            document.getElementById('pantalla-menu').style.display = 'none';
+            generarSala();
+        }
+
+        // --- LÓGICA DE SALAS Y PUERTAS ---
+        function generarSala() {
+            document.getElementById('lbl-sala-actual').innerText = `SALA ${partidaActiva.salaActual} / 260`;
+            actualizarPanelSuperiorUI();
+
+            // Tienda cada 10 salas (excepto en la 260)
+            if (partidaActiva.salaActual % 10 === 0 && partidaActiva.salaActual !== 260) {
+                abrirTienda();
+                return;
+            }
+
+            // Muebles con cajones (23% probabilidad)
+            let contenedorMuebles = document.getElementById('zona-muebles-sala');
+            contenedorMuebles.innerHTML = "";
+            if (Math.random() < 0.23) {
+                let cantMuebles = Math.random() < 0.5 ? 1 : 2;
+                for (let m = 0; m < cantMuebles; m++) {
+                    let mDiv = document.createElement('div');
+                    mDiv.className = 'mueble-cajonera';
+                    mDiv.innerHTML = `<div class="cajon-linea"></div><div class="cajon-linea"></div>`;
+                    mDiv.onclick = () => examinarMueble(mDiv);
+                    contenedorMuebles.appendChild(mDiv);
+                }
+            }
+
+            // Cantidad de puertas por sala según progreso
+            let cantidadPuertas = 3;
+            if (partidaActiva.salaActual >= 50 && partidaActiva.salaActual < 90) cantidadPuertas = 4;
+            if (partidaActiva.salaActual >= 90) cantidadPuertas = 5;
+
+            let contPuertas = document.getElementById('contenedor-puertas-sala');
+            contPuertas.innerHTML = "";
+
+            for (let i = 0; i < cantidadPuertas; i++) {
+                let tipo = seleccionarTipoPuerta();
+                let pMarco = document.createElement('div');
+                pMarco.className = 'puerta-marco';
+
+                let numLbl = document.createElement('div');
+                numLbl.className = 'numero-puerta';
+                numLbl.innerText = `#${partidaActiva.salaActual}-${i+1}`;
+
+                let hoja = document.createElement('div');
+                hoja.className = 'hoja-puerta ' + tipo.clase;
+
+                if (tipo.id === 'rota') {
+                    hoja.innerHTML = `<div class="tablon-roto"></div><div class="tablon-roto-2"></div>`;
+                } else if (tipo.id === 'embrujada') {
+                    hoja.innerHTML = `<div class="telarana-css"></div>`;
+                }
+
+                pMarco.appendChild(numLbl);
+                pMarco.appendChild(hoja);
+                pMarco.onclick = () => procesarSeleccionPuerta(tipo, i);
+
+                contPuertas.appendChild(pMarco);
+            }
+
+            partidaActiva.efectoAguaBendita = false;
+        }
+
+        function seleccionarTipoPuerta() {
+            let rand = Math.random() * 100;
+            let probEmbrujada = partidaActiva.salaActual >= 20 ? 15 : 5;
+            if (partidaActiva.salaActual >= 40) probEmbrujada = 25;
+
+            if (rand < 30) return { id: 'comun', nombre: 'Puerta Común', clase: 'puerta-comun' };
+            if (rand < 30 + 55) return { id: 'rota', nombre: 'Puerta Rota', clase: 'puerta-rota' };
+            if (rand < 30 + 55 + probEmbrujada) return { id: 'embrujada', nombre: 'Puerta Embrujada de Metal', clase: 'puerta-embrujada' };
+            return { id: 'electrica', nombre: 'Puerta Eléctrica', clase: 'puerta-electrica' };
+        }
+
+        function procesarSeleccionPuerta(tipo, index) {
+            partidaActiva.puertaSeleccionadaIndex = index;
+
+            // Uso de Llave Dorada para omitir puzle en puerta embrujada
+            let tieneLlave = partidaActiva.inventario.indexOf('Llave Dorada');
+            if (tipo.id === 'embrujada' && tieneLlave !== -1) {
+                partidaActiva.inventario[tieneLlave] = null;
+                actualizarPanelSuperiorUI();
+                mostrarHistorial("🔑 Usaste la Llave Dorada para saltarte el puzle.");
+                ejecutarResultadoPuerta(tipo);
+                return;
+            }
+
+            if (tipo.id === 'embrujada') {
+                abrirPuzleLaberinto(tipo);
+            } else {
+                ejecutarResultadoPuerta(tipo);
+            }
+        }
+
+        function ejecutarResultadoPuerta(tipo) {
+            // Regla de al menos 1 dulce por puerta
+            partidaActiva.dulces += 1;
+            let ataqueFantasma = false;
+
+            if (!partidaActiva.efectoAguaBendita) {
+                if (tipo.id === 'rota') {
+                    if (Math.random() < 0.45) ataqueFantasma = true;
+                } else if (tipo.id === 'embrujada') {
+                    if (Math.random() < 0.69) ataqueFantasma = true;
+                } else if (tipo.id === 'electrica') {
+                    if (Math.random() < 0.89) ataqueFantasma = true;
+                }
+            }
+
+            if (ataqueFantasma) {
+                partidaActiva.corazones -= 1;
+                partidaActiva.efectoRegeneracion = false; // Se pierde el efecto al sufrir ataque
+                mostrarHistorial(`👻 ¡UN FANTASMA SALIÓ DE LA ${tipo.nombre.toUpperCase()} Y TE QUITÓ 1 CORAZÓN!`);
+            } else {
+                // Regeneración si el efecto está activo
+                if (partidaActiva.efectoRegeneracion && partidaActiva.corazones < partidaActiva.maxCorazones) {
+                    partidaActiva.corazones++;
+                }
+
+                // Botín seguro según tipo de puerta
+                otorgarBotinPuerta(tipo);
+            }
+
+            actualizarPanelSuperiorUI();
+
+            if (partidaActiva.corazones <= 0) {
+                alert("💀 Has perdido todos tus corazones en el hotel. Fin de la partida.");
+                finalizarPartida(false);
+                return;
+            }
+
+            // Incrementar contador de puntos de premio cada 3 salas
+            if (partidaActiva.salaActual % 3 === 0) {
+                estadoGlobal.contadorPuntosPremio++;
+            }
+
+            if (partidaActiva.salaActual >= 260) {
+                alert("🎉 ¡HAS SOBREVIVIDO A LAS 260 SALAS DEL HOTEL EMBRUJADO!");
+                finalizarPartida(true);
+                return;
+            }
+
+            partidaActiva.salaActual++;
+            setTimeout(generarSala, 600);
+        }
+
+        function otorgarBotinPuerta(tipo) {
+            let msg = `Pasaste la ${tipo.nombre}. `;
+            if (tipo.id === 'comun') {
+                partidaActiva.dulces += 3;
+                msg += "+3 Dulces otorgados.";
+            } else if (tipo.id === 'rota') {
+                if (Math.random() < 0.50) agregarItemInventario('Rosa 🌹');
+                else agregarItemInventario('Poción Corazón 🧪');
+                msg += "Encontraste un objeto útil.";
+            } else if (tipo.id === 'embrujada') {
+                if (Math.random() < 0.55) agregarItemInventario('Rosa 🌹');
+                if (Math.random() < 0.98) partidaActiva.dulces += 3;
+                msg += "Recibiste recompensas embrujadas.";
+            } else if (tipo.id === 'electrica') {
+                let r = Math.random();
+                if (r < 0.57) agregarItemInventario('Espanta Fantasma');
+                else if (r < 0.57 + 0.35) partidaActiva.efectoRegeneracion = true;
+                if (Math.random() < 0.70) partidaActiva.dulces += 10;
+                msg += "¡Obtuviste botín de alta calidad!";
+            }
+            mostrarHistorial(msg);
+        }
+
+        // --- SISTEMA DE INVENTARIO (MÁXIMO 3 SLOTS) ---
+        function agregarItemInventario(item) {
+            let slotVacio = partidaActiva.inventario.indexOf(null);
+            if (slotVacio !== -1) {
+                partidaActiva.inventario[slotVacio] = item;
+                mostrarHistorial(`Guardaste [${item}] en tu inventario.`);
+            } else {
+                mostrarHistorial(`Inventario lleno. No pudiste recoger [${item}].`);
+            }
+            actualizarPanelSuperiorUI();
+        }
+
+        function usarItemInv(index) {
+            let item = partidaActiva.inventario[index];
+            if (!item) return;
+
+            if (item === 'Rosa 🌹') {
+                if (partidaActiva.corazones < partidaActiva.maxCorazones) partidaActiva.corazones++;
+            } else if (item === 'Poción Corazón 🧪') {
+                partidaActiva.corazones = Math.min(partidaActiva.maxCorazones, partidaActiva.corazones + 2);
+            } else if (item === 'Espanta Fantasma') {
+                partidaActiva.efectoAguaBendita = true;
+                mostrarHistorial("🛡️ Aplicaste Espanta Fantasma. La siguiente puerta será 100% segura.");
+            }
+
+            partidaActiva.inventario[index] = null;
+            actualizarPanelSuperiorUI();
+        }
+
+        // --- MUEBLES EXAMINABLES ---
+        function examinarMueble(elem) {
+            elem.style.pointerEvents = 'none';
+            elem.style.opacity = '0.4';
+            let dulcesGanados = Math.floor(Math.random() * 3) + 2; // 2-4 dulces
+            partidaActiva.dulces += dulcesGanados;
+
+            if (Math.random() < 0.80) {
+                agregarItemInventario('Llave Dorada');
+                mostrarHistorial(`🗄️ Encontraste ${dulcesGanados} dulces y una Llave Dorada en los cajones.`);
+            } else {
+                mostrarHistorial(`🗄️ Encontraste ${dulcesGanados} dulces en los cajones.`);
+            }
+            actualizarPanelSuperiorUI();
+        }
+
+        // --- PUZLE LABERINTO EN CANVAS ---
+        let canvas = document.getElementById('canvasLab');
+        let ctx = canvas.getContext('2d');
+        let dibujando = false;
+        let tipoPuertaPendiente = null;
+
+        function abrirPuzleLaberinto(tipo) {
+            tipoPuertaPendiente = tipo;
+            document.getElementById('modal-puzle').style.display = 'flex';
+            dibujarLaberintoBase();
+        }
+
+        function dibujarLaberintoBase() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Inicio (Verde) y Salida (Rojo)
+            ctx.fillStyle = '#10b981';
+            ctx.fillRect(10, 10, 40, 40);
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(230, 230, 40, 40);
+
+            // Obstáculos
+            ctx.fillStyle = '#374151';
+            ctx.fillRect(60, 0, 20, 200);
+            ctx.fillRect(140, 80, 20, 200);
+            ctx.fillRect(200, 0, 20, 180);
+        }
+
+        canvas.addEventListener('pointerdown', (e) => { dibujando = true; ctx.beginPath(); });
+        canvas.addEventListener('pointermove', (e) => {
+            if (!dibujando) return;
+            let rect = canvas.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            let y = e.clientY - rect.top;
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineTo(x, y);
+            ctx.stroke();
+
+            // Detección de llegada a la meta
+            if (x >= 230 && y >= 230) {
+                dibujando = false;
+                document.getElementById('modal-puzle').style.display = 'none';
+                ejecutarResultadoPuerta(tipoPuertaPendiente);
+            }
+        });
+        canvas.addEventListener('pointerup', () => { dibujando = false; });
+
+        function cancelarPuzle() {
+            document.getElementById('modal-puzle').style.display = 'none';
+        }
+
+        // --- TIENDA EN EL HOTEL ---
+        function abrirTienda() {
+            document.getElementById('lbl-dulces-tienda').innerText = partidaActiva.dulces;
+            let container = document.getElementById('lista-items-tienda');
+            container.innerHTML = "";
+
+            let items = [
+                { nombre: "Crucifijo (Protección)", precio: 5, accion: () => { partidaActiva.efectoAguaBendita = true; } },
+                { nombre: "Poción de Vida (+2 Salud)", precio: 10, accion: () => { partidaActiva.corazones = Math.min(partidaActiva.maxCorazones, partidaActiva.corazones + 2); } },
+                { nombre: partidaActiva.maxCorazones < 6 ? "Aumento de Vida Max (+1 Capacidad)" : "Agua Bendita (Puertas Seguras)",
+                  precio: partidaActiva.maxCorazones < 6 ? 7 : 12,
+                  accion: () => {
+                      if (partidaActiva.maxCorazones < 6) partidaActiva.maxCorazones++;
+                      else partidaActiva.efectoAguaBendita = true;
+                  }
+                }
+            ];
+
+            items.forEach(it => {
+                let row = document.createElement('div');
+                row.className = 'item-tienda-row';
+                row.innerHTML = `<span><b>${it.nombre}</b> - ${it.precio} Dulces</span>`;
+                let btn = document.createElement('button');
+                btn.className = 'btn-comprar';
+                btn.innerText = 'Comprar';
+                btn.onclick = () => {
+                    if (partidaActiva.dulces >= it.precio) {
+                        partidaActiva.dulces -= it.precio;
+                        it.accion();
+                        document.getElementById('lbl-dulces-tienda').innerText = partidaActiva.dulces;
+                        actualizarPanelSuperiorUI();
+                        alert("¡Compra realizada!");
+                    } else {
+                        alert("No tienes suficientes dulces.");
+                    }
+                };
+                row.appendChild(btn);
+                container.appendChild(row);
+            });
+
+            document.getElementById('modal-tienda').style.display = 'flex';
+        }
+
+        function cerrarTienda() {
+            document.getElementById('modal-tienda').style.display = 'none';
+            partidaActiva.salaActual++;
+            generarSala();
+        }
+
+        // --- ACTUALIZACIÓN DE UI EN PANTALLA ---
+        function actualizarPanelSuperiorUI() {
+            // Corazones
+            let contVidas = document.getElementById('contenedor-vidas');
+            contVidas.innerHTML = "";
+            for (let i = 0; i < partidaActiva.maxCorazones; i++) {
+                let divC = document.createElement('div');
+                divC.className = 'corazon-ui' + (i >= partidaActiva.corazones ? ' vacio' : '');
+                contVidas.appendChild(divC);
+            }
+
+            // Dulces
+            document.getElementById('lbl-dulces').innerText = partidaActiva.dulces;
+
+            // Inventario Slots
+            for (let s = 0; s < 3; s++) {
+                let slotEl = document.getElementById(`inv-${s}`);
+                let item = partidaActiva.inventario[s];
+                slotEl.innerText = item ? item.substring(0, 8) : '-';
+            }
+        }
+
+        function mostrarHistorial(texto) {
+            document.getElementById('lbl-historial').innerText = texto;
+        }
+
+        // --- FIN DE PARTIDA Y RECOMPENSAS ---
+        function finalizarPartida(victoria) {
+            estadoGlobal.partidasJugadas++;
+            if (estadoGlobal.partidasJugadas === 1) {
+                // Enfriamiento de 4 minutos tras la primera partida
+                estadoGlobal.tiempoEsperaHasta = Date.now() + (4 * 60 * 1000);
+            }
+            guardarEstadoGlobal();
+            actualizarUI_Menu();
+            document.getElementById('pantalla-menu').style.display = 'flex';
+        }
+
+        function confirmarRetiroPremios() {
+            if (estadoGlobal.contadorPuntosPremio <= 0) {
+                alert("No tienes puntos de premio acumulados. Avanza al menos 3 salas para conseguir uno.");
+                return;
+            }
+
+            if (confirm(`¿Deseas retirar tus premios acumulados por las salas superadas?`)) {
+                let nuevosPremios = [];
+                for (let i = 0; i < estadoGlobal.contadorPuntosPremio; i++) {
+                    TABLA_PREMIOS.forEach(premio => {
+                        if (Math.random() * 100 <= premio.prob) {
+                            nuevosPremios.push(premio.nombre);
+                        }
+                    });
+                }
+
+                if (nuevosPremios.length === 0) nuevosPremios.push("Huevo básico");
+                estadoGlobal.premiosAcumulados = estadoGlobal.premiosAcumulados.concat(nuevosPremios);
+                estadoGlobal.contadorPuntosPremio = 0;
+                guardarEstadoGlobal();
+                actualizarUI_Menu();
+                alert(`🎉 ¡Retiro exitoso! Se han añadido ${nuevosPremios.length} premios a tu inventario principal.`);
+            }
+        }
+    </script>
+</body>
+</html>
